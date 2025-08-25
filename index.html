@@ -4,17 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Time Zone Converter</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
+        #CalculatorContainer * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: 'Georgia', serif;
         }
         
-        body {
-            background-color:#f4f2eb;
+        #CalculatorContainer {
+            background-color: #f4f2eb;
             color: #333;
             min-height: 100vh;
             display: flex;
@@ -23,27 +22,26 @@
             padding: 20px;
         }
         
-        .header {
+        #CalculatorContainer .header {
             text-align: center;
             margin-bottom: 25px;
             width: 100%;
         }
         
-        .header h1 {
+        #CalculatorContainer .header h2 {
             color: #ad2a24;
             font-size: 2.0rem;
             margin-bottom: 10px;
         }
         
-        .header p {
+        #CalculatorContainer .header p {
             color: #666;
             font-size: 1.1rem;
             max-width: 600px;
             margin: 0 auto;
         }
 
-
-        .container {
+        #CalculatorContainer .container {
             background-color: #f9f5e8;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
@@ -53,7 +51,7 @@
             margin-bottom: 30px;
         }
         
-        .card {
+        #CalculatorContainer .card {
             margin-bottom: 20px;
             padding: 20px;
             border-radius: 8px;
@@ -61,52 +59,53 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
         
-        .card-title {
+        #CalculatorContainer .card-title {
             display: flex;
             align-items: center;
             margin-bottom: 15px;
             color: #ad2a24;
         }
         
-        .card-title i {
+        #CalculatorContainer .card-title i {
             margin-right: 10px;
             font-size: 1.2rem;
         }
         
-        .input-group {
+        #CalculatorContainer .input-group {
             margin-bottom: 15px;
         }
         
-        label {
+        #CalculatorContainer label {
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
             color: #555;
         }
         
-        input, select {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 16px;
-    transition: border-color 0.3s;
-}
-
+        #CalculatorContainer input, 
+        #CalculatorContainer select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
         
-        input:focus, select:focus {
+        #CalculatorContainer input:focus, 
+        #CalculatorContainer select:focus {
             border-color: #ad2a24;
             outline: none;
             box-shadow: 0 0 0 2px rgba(173, 42, 36, 0.2);
         }
         
-        .btn-container {
+        #CalculatorContainer .btn-container {
             display: flex;
             justify-content: center;
             margin: 25px 0;
         }
         
-        button {
+        #CalculatorContainer button {
             background-color: #ad2a24;
             color: white;
             border: none;
@@ -120,20 +119,20 @@
             align-items: center;
         }
         
-        button i {
+        #CalculatorContainer button i {
             margin-right: 8px;
         }
         
-        button:hover {
+        #CalculatorContainer button:hover {
             background-color: #93211c;
             transform: translateY(-2px);
         }
         
-        button:active {
+        #CalculatorContainer button:active {
             transform: translateY(0);
         }
         
-        .result {
+        #CalculatorContainer .result {
             margin-top: 20px;
             padding: 25px;
             background-color: #fff;
@@ -143,35 +142,35 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            display: none; /* Hidden by default */
+            display: none;
         }
         
-        .result.visible {
-            display: flex; /* Show when needed */
+        #CalculatorContainer .result.visible {
+            display: flex;
             animation: fadeIn 0.5s ease-in-out;
         }
         
-        .result h3 {
+        #CalculatorContainer .result h3 {
             margin-bottom: 15px;
             color: #555;
             font-size: 1.0rem;
         }
         
-        .converted-time {
+        #CalculatorContainer .converted-time {
             font-size: 1.5rem;
             font-weight: bold;
             color: #ad2a24;
             margin: 10px 0;
         }
         
-        .time-details {
+        #CalculatorContainer .time-details {
             margin-top: 15px;
             font-size: 0.95rem;
             color: #666;
             line-height: 1.6;
         }
         
-        .footer {
+        #CalculatorContainer .footer {
             margin-top: 20px;
             color: #777;
             text-align: center;
@@ -185,74 +184,77 @@
         }
         
         @media (max-width: 600px) {
-            .container {
+            #CalculatorContainer .container {
                 padding: 15px;
             }
             
-            .header h1 {
-                font-size: 2.2rem;
+            #CalculatorContainer .header h2 {
+                font-size: 1.8rem;
             }
             
-            .converted-time {
+            #CalculatorContainer .converted-time {
                 font-size: 1.4rem;
             }
             
-            button {
+            #CalculatorContainer button {
                 width: 100%;
                 justify-content: center;
+            }
+            
+            #CalculatorContainer input, 
+            #CalculatorContainer select {
+                padding: 14px 12px;
+                font-size: 16px; /* Prevents zoom on iOS */
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-        <h1><i class="fas fa-globe"></i> Time Zone Converter</h1>
-        <p>Convert between time zones with automatic Daylight Saving Time handling</p>
-    </div>
-        <div class="card">
-            <div class="card-title">
-                <i class="fas fa-clock"></i>
-                <h2>Date & Time</h2>
+    <div id="CalculatorContainer">
+        <div class="container">
+            <div class="header">
+                <h2><i class="fas fa-globe"></i> Time Zone Converter</h2>
+                <p>Convert between time zones with automatic Daylight Saving Time handling</p>
             </div>
-            <div class="input-group">
-                <label for="datetime">Select Date and Time</label>
-                <input type="datetime-local" id="datetime">
-            </div>
-        </div>
-        
-        <div class="card">
-            <div class="card-title">
-                <i class="fas fa-map-marker-alt"></i>
-                <h2>Time Zones</h2>
-            </div>
-            <div class="input-group">
-                <label for="source-timezone">From Timezone</label>
-                <select id="source-timezone"></select>
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-clock"></i>
+                    <h2>Date & Time</h2>
+                </div>
+                <div class="input-group">
+                    <label for="datetime">Select Date and Time</label>
+                    <input type="datetime-local" id="datetime">
+                </div>
             </div>
             
-            <div class="input-group">
-                <label for="target-timezone">To Timezone</label>
-                <select id="target-timezone"></select>
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <h2>Time Zones</h2>
+                </div>
+                <div class="input-group">
+                    <label for="source-timezone">From Timezone</label>
+                    <select id="source-timezone"></select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="target-timezone">To Timezone</label>
+                    <select id="target-timezone"></select>
+                </div>
+            </div>
+            
+            <div class="btn-container">
+                <button id="convert-btn">
+                    <i class="fas fa-exchange-alt"></i> Convert Timezone
+                </button>
+            </div>
+            
+            <div class="result" id="result-section">
+                <h3><i class="fas fa-calendar-alt"></i> Converted Date & Time</h3>
+                <div id="output" class="converted-time"></div>
+                <div id="time-details" class="time-details"></div>
             </div>
         </div>
-        
-        <div class="btn-container">
-            <button id="convert-btn">
-                <i class="fas fa-exchange-alt"></i> Convert Timezone
-            </button>
-        </div>
-        
-        <div class="result" id="result-section">
-            <h3><i class="fas fa-calendar-alt"></i> Converted Date & Time</h3>
-            <div id="output" class="converted-time"></div>
-            <div id="time-details" class="time-details"></div>
-        </div>
-    </div>
-    
-    <div class="footer">
-        <p>Powered by browser's Intl API | Handles DST automatically</p>
-        <p>© 2023 Time Zone Converter</p>
     </div>
 
     <script>
