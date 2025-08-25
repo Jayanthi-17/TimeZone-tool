@@ -32,6 +32,10 @@
             color: #ad2a24;
             font-size: 2.0rem;
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
         
         #CalculatorContainer .header p {
@@ -64,11 +68,13 @@
             align-items: center;
             margin-bottom: 15px;
             color: #ad2a24;
+            gap: 10px;
         }
         
-        #CalculatorContainer .card-title i {
-            margin-right: 10px;
-            font-size: 1.2rem;
+        #CalculatorContainer .card-title svg {
+            width: 20px;
+            height: 20px;
+            fill: #ad2a24;
         }
         
         #CalculatorContainer .input-group {
@@ -117,10 +123,7 @@
             transition: background-color 0.3s, transform 0.2s;
             display: flex;
             align-items: center;
-        }
-        
-        #CalculatorContainer button i {
-            margin-right: 8px;
+            gap: 8px;
         }
         
         #CalculatorContainer button:hover {
@@ -154,6 +157,10 @@
             margin-bottom: 15px;
             color: #555;
             font-size: 1.0rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         
         #CalculatorContainer .converted-time {
@@ -213,12 +220,13 @@
     <div id="CalculatorContainer">
         <div class="container">
             <div class="header">
-                <h2><i class="fas fa-globe"></i> Time Zone Converter</h2>
+                <h2>
+                    Time Zone Converter
+                </h2>
                 <p>Convert between time zones with automatic Daylight Saving Time handling</p>
             </div>
             <div class="card">
                 <div class="card-title">
-                    <i class="fas fa-clock"></i>
                     <h2>Date & Time</h2>
                 </div>
                 <div class="input-group">
@@ -229,7 +237,6 @@
             
             <div class="card">
                 <div class="card-title">
-                    <i class="fas fa-map-marker-alt"></i>
                     <h2>Time Zones</h2>
                 </div>
                 <div class="input-group">
@@ -245,12 +252,14 @@
             
             <div class="btn-container">
                 <button id="convert-btn">
-                    <i class="fas fa-exchange-alt"></i> Convert Timezone
+                    Convert Timezone
                 </button>
             </div>
             
             <div class="result" id="result-section">
-                <h3><i class="fas fa-calendar-alt"></i> Converted Date & Time</h3>
+                <h3>
+                    Converted Date & Time
+                </h3>
                 <div id="output" class="converted-time"></div>
                 <div id="time-details" class="time-details"></div>
             </div>
