@@ -79,6 +79,7 @@
         
         #CalculatorContainer .input-group {
             margin-bottom: 15px;
+            position: relative;
         }
         
         #CalculatorContainer label {
@@ -103,6 +104,109 @@
             border-color: #ad2a24;
             outline: none;
             box-shadow: 0 0 0 2px rgba(173, 42, 36, 0.2);
+        }
+        
+        /* Searchable dropdown styles */
+        #CalculatorContainer .search-container {
+            position: relative;
+        }
+        
+        #CalculatorContainer .search-input-container {
+            display: flex;
+            gap: 10px;
+        }
+        
+        #CalculatorContainer .search-input {
+            flex: 1;
+            padding-left: 35px;
+        }
+        
+        #CalculatorContainer .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #777;
+            pointer-events: none;
+        }
+        
+        #CalculatorContainer .search-btn {
+            background-color: #ad2a24;
+            color: white;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        #CalculatorContainer .search-btn:hover {
+            background-color: #93211c;
+        }
+        
+        #CalculatorContainer .dropdown-container {
+            position: relative;
+        }
+        
+        #CalculatorContainer .timezone-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            max-height: 300px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+        
+        #CalculatorContainer .timezone-dropdown.visible {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        #CalculatorContainer .timezone-option {
+            padding: 10px 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        #CalculatorContainer .timezone-option:hover {
+            background-color: #f9f5e8;
+        }
+        
+        #CalculatorContainer .timezone-city {
+            flex: 2;
+        }
+        
+        #CalculatorContainer .timezone-offset {
+            flex: 1;
+            text-align: right;
+            color: #777;
+        }
+        
+        #CalculatorContainer .timezone-group {
+            font-weight: 600;
+            background-color: #f5f5f5;
+            padding: 8px 12px;
+            color: #ad2a24;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        #CalculatorContainer .selected-timezone {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 6px;
+            border: 1px solid #eee;
         }
         
         #CalculatorContainer .btn-container {
@@ -211,7 +315,25 @@
             #CalculatorContainer input, 
             #CalculatorContainer select {
                 padding: 14px 12px;
-                font-size: 16px; /* Prevents zoom on iOS */
+                font-size: 16px;
+            }
+            
+            #CalculatorContainer .timezone-option {
+                flex-direction: column;
+            }
+            
+            #CalculatorContainer .timezone-offset {
+                text-align: left;
+                margin-top: 4px;
+                font-size: 0.9em;
+            }
+            
+            #CalculatorContainer .search-input-container {
+                flex-direction: column;
+            }
+            
+            #CalculatorContainer .search-btn {
+                width: 100%;
             }
         }
     </style>
@@ -241,12 +363,32 @@
                 </div>
                 <div class="input-group">
                     <label for="source-timezone">From Timezone</label>
-                    <select id="source-timezone"></select>
+                    <div class="dropdown-container">
+                        <div class="search-input-container">
+                            <div class="search-container" style="flex: 1;">
+                                <span class="search-icon">🔍</span>
+                                <input type="text" id="source-search" class="search-input" placeholder="Click search button to find cities" readonly>
+                            </div>
+                            <button class="search-btn" id="source-search-btn">Search</button>
+                        </div>
+                        <div id="source-dropdown" class="timezone-dropdown"></div>
+                        <div id="source-selected" class="selected-timezone">No timezone selected</div>
+                    </div>
                 </div>
                 
                 <div class="input-group">
                     <label for="target-timezone">To Timezone</label>
-                    <select id="target-timezone"></select>
+                    <div class="dropdown-container">
+                        <div class="search-input-container">
+                            <div class="search-container" style="flex: 1;">
+                                <span class="search-icon">🔍</span>
+                                <input type="text" id="target-search" class="search-input" placeholder="Click search button to find cities" readonly>
+                            </div>
+                            <button class="search-btn" id="target-search-btn">Search</button>
+                        </div>
+                        <div id="target-dropdown" class="timezone-dropdown"></div>
+                        <div id="target-selected" class="selected-timezone">No timezone selected</div>
+                    </div>
                 </div>
             </div>
             
@@ -271,46 +413,245 @@
             // Get user's local timezone
             const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
             
-            // Get timezone select elements
-            const sourceTimezoneSelect = document.getElementById('source-timezone');
-            const targetTimezoneSelect = document.getElementById('target-timezone');
+            // Get elements
+            const sourceSearchBtn = document.getElementById('source-search-btn');
+            const targetSearchBtn = document.getElementById('target-search-btn');
+            const sourceSearchInput = document.getElementById('source-search');
+            const targetSearchInput = document.getElementById('target-search');
+            const sourceDropdown = document.getElementById('source-dropdown');
+            const targetDropdown = document.getElementById('target-dropdown');
+            const sourceSelected = document.getElementById('source-selected');
+            const targetSelected = document.getElementById('target-selected');
             const resultSection = document.getElementById('result-section');
             
-            // Get supported timezones
-            let timeZones = [];
-            try {
-                timeZones = Intl.supportedValuesOf('timeZone');
-            } catch (e) {
-                // Fallback timezones if supportedValuesOf is not available
-                timeZones = [
-                    'UTC', 'America/New_York', 'America/Chicago', 'America/Denver', 
-                    'America/Los_Angeles', 'Europe/London', 'Europe/Paris', 
-                    'Asia/Tokyo', 'Asia/Shanghai', 'Australia/Sydney'
-                ];
+            // Store selected timezones
+            let selectedSourceTimezone = userTimezone;
+            let selectedTargetTimezone = 'UTC';
+            
+            // Major cities with their timezones and display names
+            const majorCities = [
+                { name: "New York", timezone: "America/New_York", country: "United States", group: "United States" },
+                { name: "Los Angeles", timezone: "America/Los_Angeles", country: "United States", group: "United States" },
+                { name: "Chicago", timezone: "America/Chicago", country: "United States", group: "United States" },
+                { name: "Denver", timezone: "America/Denver", country: "United States", group: "United States" },
+                { name: "Phoenix", timezone: "America/Phoenix", country: "United States", group: "United States" },
+                { name: "Toronto", timezone: "America/Toronto", country: "Canada", group: "Canada" },
+                { name: "Vancouver", timezone: "America/Vancouver", country: "Canada", group: "Canada" },
+                { name: "London", timezone: "Europe/London", country: "United Kingdom", group: "Europe" },
+                { name: "Paris", timezone: "Europe/Paris", country: "France", group: "Europe" },
+                { name: "Berlin", timezone: "Europe/Berlin", country: "Germany", group: "Europe" },
+                { name: "Madrid", timezone: "Europe/Madrid", country: "Spain", group: "Europe" },
+                { name: "Rome", timezone: "Europe/Rome", country: "Italy", group: "Europe" },
+                { name: "Amsterdam", timezone: "Europe/Amsterdam", country: "Netherlands", group: "Europe" },
+                { name: "Brussels", timezone: "Europe/Brussels", country: "Belgium", group: "Europe" },
+                { name: "Vienna", timezone: "Europe/Vienna", country: "Austria", group: "Europe" },
+                { name: "Zurich", timezone: "Europe/Zurich", country: "Switzerland", group: "Europe" },
+                { name: "Stockholm", timezone: "Europe/Stockholm", country: "Sweden", group: "Europe" },
+                { name: "Oslo", timezone: "Europe/Oslo", country: "Norway", group: "Europe" },
+                { name: "Copenhagen", timezone: "Europe/Copenhagen", country: "Denmark", group: "Europe" },
+                { name: "Athens", timezone: "Europe/Athens", country: "Greece", group: "Europe" },
+                { name: "Prague", timezone: "Europe/Prague", country: "Czech Republic", group: "Europe" },
+                { name: "Warsaw", timezone: "Europe/Warsaw", country: "Poland", group: "Europe" },
+                { name: "Budapest", timezone: "Europe/Budapest", country: "Hungary", group: "Europe" },
+                { name: "Dublin", timezone: "Europe/Dublin", country: "Ireland", group: "Europe" },
+                { name: "Lisbon", timezone: "Europe/Lisbon", country: "Portugal", group: "Europe" },
+                { name: "Istanbul", timezone: "Europe/Istanbul", country: "Turkey", group: "Europe" },
+                { name: "Moscow", timezone: "Europe/Moscow", country: "Russia", group: "Europe" },
+                { name: "Dubai", timezone: "Asia/Dubai", country: "United Arab Emirates", group: "Middle East" },
+                { name: "Riyadh", timezone: "Asia/Riyadh", country: "Saudi Arabia", group: "Middle East" },
+                { name: "Tel Aviv", timezone: "Asia/Jerusalem", country: "Israel", group: "Middle East" },
+                { name: "Tokyo", timezone: "Asia/Tokyo", country: "Japan", group: "Asia" },
+                { name: "Seoul", timezone: "Asia/Seoul", country: "South Korea", group: "Asia" },
+                { name: "Shanghai", timezone: "Asia/Shanghai", country: "China", group: "Asia" },
+                { name: "Beijing", timezone: "Asia/Shanghai", country: "China", group: "Asia" },
+                { name: "Hong Kong", timezone: "Asia/Hong_Kong", country: "Hong Kong", group: "Asia" },
+                { name: "Singapore", timezone: "Asia/Singapore", country: "Singapore", group: "Asia" },
+                { name: "Kuala Lumpur", timezone: "Asia/Kuala_Lumpur", country: "Malaysia", group: "Asia" },
+                { name: "Bangkok", timezone: "Asia/Bangkok", country: "Thailand", group: "Asia" },
+                { name: "Jakarta", timezone: "Asia/Jakarta", country: "Indonesia", group: "Asia" },
+                { name: "Manila", timezone: "Asia/Manila", country: "Philippines", group: "Asia" },
+                { name: "Mumbai", timezone: "Asia/Kolkata", country: "India", group: "Asia" },
+                { name: "Delhi", timezone: "Asia/Kolkata", country: "India", group: "Asia" },
+                { name: "Sydney", timezone: "Australia/Sydney", country: "Australia", group: "Australia & Oceania" },
+                { name: "Melbourne", timezone: "Australia/Melbourne", country: "Australia", group: "Australia & Oceania" },
+                { name: "Brisbane", timezone: "Australia/Brisbane", country: "Australia", group: "Australia & Oceania" },
+                { name: "Perth", timezone: "Australia/Perth", country: "Australia", group: "Australia & Oceania" },
+                { name: "Auckland", timezone: "Pacific/Auckland", country: "New Zealand", group: "Australia & Oceania" },
+                { name: "Wellington", timezone: "Pacific/Auckland", country: "New Zealand", group: "Australia & Oceania" },
+                { name: "Mexico City", timezone: "America/Mexico_City", country: "Mexico", group: "Latin America" },
+                { name: "Sao Paulo", timezone: "America/Sao_Paulo", country: "Brazil", group: "Latin America" },
+                { name: "Rio de Janeiro", timezone: "America/Sao_Paulo", country: "Brazil", group: "Latin America" },
+                { name: "Buenos Aires", timezone: "America/Argentina/Buenos_Aires", country: "Argentina", group: "Latin America" },
+                { name: "Lima", timezone: "America/Lima", country: "Peru", group: "Latin America" },
+                { name: "Bogota", timezone: "America/Bogota", country: "Colombia", group: "Latin America" },
+                { name: "Santiago", timezone: "America/Santiago", country: "Chile", group: "Latin America" },
+                { name: "Caracas", timezone: "America/Caracas", country: "Venezuela", group: "Latin America" },
+                { name: "Johannesburg", timezone: "Africa/Johannesburg", country: "South Africa", group: "Africa" },
+                { name: "Cairo", timezone: "Africa/Cairo", country: "Egypt", group: "Africa" },
+                { name: "Nairobi", timezone: "Africa/Nairobi", country: "Kenya", group: "Africa" },
+                { name: "Lagos", timezone: "Africa/Lagos", country: "Nigeria", group: "Africa" },
+                { name: "Casablanca", timezone: "Africa/Casablanca", country: "Morocco", group: "Africa" },
+                { name: "Honolulu", timezone: "Pacific/Honolulu", country: "United States", group: "United States" },
+                { name: "Anchorage", timezone: "America/Anchorage", country: "United States", group: "United States" }
+            ];
+            
+            // Group cities by their group property
+            const groupedCities = {};
+            majorCities.forEach(city => {
+                if (!groupedCities[city.group]) {
+                    groupedCities[city.group] = [];
+                }
+                groupedCities[city.group].push(city);
+            });
+            
+            // Sort groups alphabetically
+            const sortedGroups = Object.keys(groupedCities).sort();
+            
+            // Function to format UTC offset
+            function formatUTCOffset(date, timezone) {
+                try {
+                    const formatter = new Intl.DateTimeFormat('en-US', {
+                        timeZone: timezone,
+                        timeZoneName: 'shortOffset'
+                    });
+                    
+                    const parts = formatter.formatToParts(date);
+                    const offsetPart = parts.find(part => part.type === 'timeZoneName');
+                    
+                    if (offsetPart) {
+                        return offsetPart.value.replace('GMT', 'UTC');
+                    }
+                    
+                    // Fallback method if the above doesn't work
+                    const offsetMs = new Date(date).getTimezoneOffset() * 60000;
+                    const timezoneOffsetMs = new Date(date.toLocaleString('en-US', { timeZone: timezone })).getTimezoneOffset() * 60000;
+                    const diffMs = offsetMs - timezoneOffsetMs;
+                    const diffHours = Math.floor(Math.abs(diffMs) / 3600000);
+                    const diffMinutes = Math.floor((Math.abs(diffMs) % 3600000) / 60000);
+                    const sign = diffMs > 0 ? '+' : '-';
+                    
+                    return `UTC ${sign}${String(diffHours).padStart(2, '0')}:${String(diffMinutes).padStart(2, '0')}`;
+                } catch (e) {
+                    return 'UTC';
+                }
             }
             
-            // Sort timezones alphabetically
-            timeZones.sort();
-            
-            // Populate timezone dropdowns
-            timeZones.forEach(timeZone => {
-                // Source timezone
-                const sourceOption = document.createElement('option');
-                sourceOption.value = timeZone;
-                sourceOption.textContent = timeZone;
-                if (timeZone === userTimezone) {
-                    sourceOption.selected = true;
-                }
-                sourceTimezoneSelect.appendChild(sourceOption);
+            // Function to populate timezone dropdown
+            function populateTimezoneDropdown(dropdownElement, searchInput, isSource) {
+                // Clear existing options
+                dropdownElement.innerHTML = '';
                 
-                // Target timezone
-                const targetOption = document.createElement('option');
-                targetOption.value = timeZone;
-                targetOption.textContent = timeZone;
-                if (timeZone === 'UTC') {
-                    targetOption.selected = true;
+                const now = new Date();
+                const filter = searchInput.value.toLowerCase();
+                
+                // Add grouped cities
+                sortedGroups.forEach(group => {
+                    let groupHasVisibleOptions = false;
+                    
+                    // Check if group has matching options
+                    for (const city of groupedCities[group]) {
+                        const displayText = `${city.name}, ${city.country}`.toLowerCase();
+                        if (displayText.includes(filter)) {
+                            groupHasVisibleOptions = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!groupHasVisibleOptions) return;
+                    
+                    // Add group header
+                    const groupHeader = document.createElement('div');
+                    groupHeader.className = 'timezone-group';
+                    groupHeader.textContent = group;
+                    dropdownElement.appendChild(groupHeader);
+                    
+                    // Add cities in this group
+                    groupedCities[group].forEach(city => {
+                        const displayText = `${city.name}, ${city.country}`.toLowerCase();
+                        if (!displayText.includes(filter)) return;
+                        
+                        const offset = formatUTCOffset(now, city.timezone);
+                        
+                        const option = document.createElement('div');
+                        option.className = 'timezone-option';
+                        option.dataset.timezone = city.timezone;
+                        option.dataset.display = `${city.name}, ${city.country}`;
+                        
+                        const citySpan = document.createElement('span');
+                        citySpan.className = 'timezone-city';
+                        citySpan.textContent = `${city.name}, ${city.country}`;
+                        
+                        const offsetSpan = document.createElement('span');
+                        offsetSpan.className = 'timezone-offset';
+                        offsetSpan.textContent = offset;
+                        
+                        option.appendChild(citySpan);
+                        option.appendChild(offsetSpan);
+                        
+                        option.addEventListener('click', () => {
+                            if (isSource) {
+                                selectedSourceTimezone = city.timezone;
+                                sourceSelected.textContent = `${city.name}, ${city.country} (${offset})`;
+                            } else {
+                                selectedTargetTimezone = city.timezone;
+                                targetSelected.textContent = `${city.name}, ${city.country} (${offset})`;
+                            }
+                            dropdownElement.classList.remove('visible');
+                        });
+                        
+                        dropdownElement.appendChild(option);
+                    });
+                });
+            }
+            
+            // Set initial selected timezones
+            function setInitialSelected() {
+                const now = new Date();
+                const sourceCity = majorCities.find(city => city.timezone === userTimezone) || 
+                                  { name: userTimezone.split('/').pop(), country: '' };
+                const targetCity = majorCities.find(city => city.timezone === 'UTC') || 
+                                  { name: 'UTC', country: '' };
+                
+                const sourceOffset = formatUTCOffset(now, userTimezone);
+                const targetOffset = formatUTCOffset(now, 'UTC');
+                
+                sourceSelected.textContent = `${sourceCity.name}, ${sourceCity.country} (${sourceOffset})`;
+                targetSelected.textContent = `${targetCity.name}, ${targetCity.country} (${targetOffset})`;
+            }
+            
+            // Set up event listeners
+            sourceSearchBtn.addEventListener('click', () => {
+                sourceDropdown.classList.toggle('visible');
+                if (sourceDropdown.classList.contains('visible')) {
+                    populateTimezoneDropdown(sourceDropdown, sourceSearchInput, true);
+                    sourceSearchInput.focus();
                 }
-                targetTimezoneSelect.appendChild(targetOption);
+            });
+            
+            targetSearchBtn.addEventListener('click', () => {
+                targetDropdown.classList.toggle('visible');
+                if (targetDropdown.classList.contains('visible')) {
+                    populateTimezoneDropdown(targetDropdown, targetSearchInput, false);
+                    targetSearchInput.focus();
+                }
+            });
+            
+            sourceSearchInput.addEventListener('input', () => {
+                populateTimezoneDropdown(sourceDropdown, sourceSearchInput, true);
+            });
+            
+            targetSearchInput.addEventListener('input', () => {
+                populateTimezoneDropdown(targetDropdown, targetSearchInput, false);
+            });
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!sourceSearchBtn.contains(e.target) && !sourceDropdown.contains(e.target) && !sourceSearchInput.contains(e.target)) {
+                    sourceDropdown.classList.remove('visible');
+                }
+                if (!targetSearchBtn.contains(e.target) && !targetDropdown.contains(e.target) && !targetSearchInput.contains(e.target)) {
+                    targetDropdown.classList.remove('visible');
+                }
             });
             
             // Set current datetime as default
@@ -318,14 +659,15 @@
             const localDatetime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
             document.getElementById('datetime').value = localDatetime;
             
+            // Set initial selected timezones
+            setInitialSelected();
+            
             // Add event listener to convert button
             document.getElementById('convert-btn').addEventListener('click', convertTimezone);
             
             // Function to convert timezone
             function convertTimezone() {
                 const datetimeInput = document.getElementById('datetime').value;
-                const sourceTimezone = document.getElementById('source-timezone').value;
-                const targetTimezone = document.getElementById('target-timezone').value;
                 
                 if (!datetimeInput) {
                     alert('Please select a date and time');
@@ -337,7 +679,7 @@
                 
                 // Format the date in source timezone for display
                 const sourceFormatter = new Intl.DateTimeFormat('en-US', {
-                    timeZone: sourceTimezone,
+                    timeZone: selectedSourceTimezone,
                     weekday: 'long',
                     year: 'numeric',
                     month: 'long',
@@ -349,7 +691,7 @@
                 
                 // Format the date in target timezone
                 const targetFormatter = new Intl.DateTimeFormat('en-US', {
-                    timeZone: targetTimezone,
+                    timeZone: selectedTargetTimezone,
                     weekday: 'long',
                     year: 'numeric',
                     month: 'long',
@@ -360,27 +702,23 @@
                 });
                 
                 // Get the offset details
-                const sourceOffsetFormatter = new Intl.DateTimeFormat('en-US', {
-                    timeZone: sourceTimezone,
-                    timeZoneName: 'longOffset'
-                });
-                
-                const targetOffsetFormatter = new Intl.DateTimeFormat('en-US', {
-                    timeZone: targetTimezone,
-                    timeZoneName: 'longOffset'
-                });
+                const sourceOffset = formatUTCOffset(localDate, selectedSourceTimezone);
+                const targetOffset = formatUTCOffset(localDate, selectedTargetTimezone);
                 
                 try {
                     const sourceTimeStr = sourceFormatter.format(localDate);
                     const targetTimeStr = targetFormatter.format(localDate);
                     
-                    const sourceOffset = sourceOffsetFormatter.format(localDate).split(', ')[1];
-                    const targetOffset = targetOffsetFormatter.format(localDate).split(', ')[1];
+                    // Find city names for display
+                    const sourceCity = majorCities.find(city => city.timezone === selectedSourceTimezone) || 
+                                      { name: selectedSourceTimezone.split('/').pop(), country: '' };
+                    const targetCity = majorCities.find(city => city.timezone === selectedTargetTimezone) || 
+                                      { name: selectedTargetTimezone.split('/').pop(), country: '' };
                     
                     document.getElementById('output').textContent = targetTimeStr;
                     document.getElementById('time-details').innerHTML = `
                         <strong>Source time:</strong> ${sourceTimeStr} (${sourceOffset})<br>
-                        <strong>Target timezone:</strong> ${targetTimezone} (${targetOffset})
+                        <strong>Target timezone:</strong> ${targetCity.name}, ${targetCity.country} (${targetOffset})
                     `;
                     
                     // Show the result section
