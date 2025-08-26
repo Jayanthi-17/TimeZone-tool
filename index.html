@@ -289,6 +289,40 @@
             width: 100%;
         }
         
+        /* Autocomplete styles */
+        #CalculatorContainer .autocomplete-container {
+            position: relative;
+        }
+        
+        #CalculatorContainer .autocomplete-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 0 0 6px 6px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            z-index: 101;
+        }
+        
+        #CalculatorContainer .autocomplete-dropdown.visible {
+            display: block;
+        }
+        
+        #CalculatorContainer .autocomplete-option {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        #CalculatorContainer .autocomplete-option:hover {
+            background-color: #f9f5e8;
+        }
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -363,14 +397,15 @@
                 </div>
                 <div class="input-group">
                     <label for="source-timezone">From Timezone</label>
-                    <div class="dropdown-container">
+                    <div class="autocomplete-container">
                         <div class="search-input-container">
                             <div class="search-container" style="flex: 1;">
                                 <span class="search-icon">🔍</span>
-                                <input type="text" id="source-search" class="search-input" placeholder="Click search button to find cities" readonly>
+                                <input type="text" id="source-search" class="search-input" placeholder="Type or search for a city">
                             </div>
                             <button class="search-btn" id="source-search-btn">Search</button>
                         </div>
+                        <div id="source-autocomplete" class="autocomplete-dropdown"></div>
                         <div id="source-dropdown" class="timezone-dropdown"></div>
                         <div id="source-selected" class="selected-timezone">No timezone selected</div>
                     </div>
@@ -378,14 +413,15 @@
                 
                 <div class="input-group">
                     <label for="target-timezone">To Timezone</label>
-                    <div class="dropdown-container">
+                    <div class="autocomplete-container">
                         <div class="search-input-container">
                             <div class="search-container" style="flex: 1;">
                                 <span class="search-icon">🔍</span>
-                                <input type="text" id="target-search" class="search-input" placeholder="Click search button to find cities" readonly>
+                                <input type="text" id="target-search" class="search-input" placeholder="Type or search for a city">
                             </div>
                             <button class="search-btn" id="target-search-btn">Search</button>
                         </div>
+                        <div id="target-autocomplete" class="autocomplete-dropdown"></div>
                         <div id="target-dropdown" class="timezone-dropdown"></div>
                         <div id="target-selected" class="selected-timezone">No timezone selected</div>
                     </div>
@@ -420,6 +456,8 @@
             const targetSearchInput = document.getElementById('target-search');
             const sourceDropdown = document.getElementById('source-dropdown');
             const targetDropdown = document.getElementById('target-dropdown');
+            const sourceAutocomplete = document.getElementById('source-autocomplete');
+            const targetAutocomplete = document.getElementById('target-autocomplete');
             const sourceSelected = document.getElementById('source-selected');
             const targetSelected = document.getElementById('target-selected');
             const resultSection = document.getElementById('result-section');
@@ -592,16 +630,75 @@
                             if (isSource) {
                                 selectedSourceTimezone = city.timezone;
                                 sourceSelected.textContent = `${city.name}, ${city.country} (${offset})`;
+                                sourceSearchInput.value = '';
                             } else {
                                 selectedTargetTimezone = city.timezone;
                                 targetSelected.textContent = `${city.name}, ${city.country} (${offset})`;
+                                targetSearchInput.value = '';
                             }
                             dropdownElement.classList.remove('visible');
+                            hideAutocomplete(isSource);
                         });
                         
                         dropdownElement.appendChild(option);
                     });
                 });
+            }
+            
+            // Function to show autocomplete suggestions
+            function showAutocompleteSuggestions(inputElement, autocompleteElement, isSource) {
+                const query = inputElement.value.toLowerCase();
+                if (query.length < 2) {
+                    autocompleteElement.classList.remove('visible');
+                    return;
+                }
+                
+                autocompleteElement.innerHTML = '';
+                
+                // Filter cities based on query
+                const suggestions = majorCities.filter(city => 
+                    `${city.name}, ${city.country}`.toLowerCase().includes(query)
+                ).slice(0, 5); // Limit to 5 suggestions
+                
+                if (suggestions.length === 0) {
+                    autocompleteElement.classList.remove('visible');
+                    return;
+                }
+                
+                suggestions.forEach(city => {
+                    const option = document.createElement('div');
+                    option.className = 'autocomplete-option';
+                    option.textContent = `${city.name}, ${city.country}`;
+                    option.addEventListener('click', () => {
+                        const now = new Date();
+                        const offset = formatUTCOffset(now, city.timezone);
+                        
+                        if (isSource) {
+                            selectedSourceTimezone = city.timezone;
+                            sourceSelected.textContent = `${city.name}, ${city.country} (${offset})`;
+                            sourceSearchInput.value = '';
+                        } else {
+                            selectedTargetTimezone = city.timezone;
+                            targetSelected.textContent = `${city.name}, ${city.country} (${offset})`;
+                            targetSearchInput.value = '';
+                        }
+                        
+                        autocompleteElement.classList.remove('visible');
+                    });
+                    
+                    autocompleteElement.appendChild(option);
+                });
+                
+                autocompleteElement.classList.add('visible');
+            }
+            
+            // Function to hide autocomplete
+            function hideAutocomplete(isSource) {
+                if (isSource) {
+                    sourceAutocomplete.classList.remove('visible');
+                } else {
+                    targetAutocomplete.classList.remove('visible');
+                }
             }
             
             // Set initial selected timezones
@@ -617,10 +714,16 @@
                 
                 sourceSelected.textContent = `${sourceCity.name}, ${sourceCity.country} (${sourceOffset})`;
                 targetSelected.textContent = `${targetCity.name}, ${targetCity.country} (${targetOffset})`;
+                
+                // Clear input values, keep only placeholder
+                sourceSearchInput.value = '';
+                targetSearchInput.value = '';
             }
             
             // Set up event listeners
             sourceSearchBtn.addEventListener('click', () => {
+                // Show all options when search button is clicked
+                sourceSearchInput.value = '';
                 sourceDropdown.classList.toggle('visible');
                 if (sourceDropdown.classList.contains('visible')) {
                     populateTimezoneDropdown(sourceDropdown, sourceSearchInput, true);
@@ -629,6 +732,8 @@
             });
             
             targetSearchBtn.addEventListener('click', () => {
+                // Show all options when search button is clicked
+                targetSearchInput.value = '';
                 targetDropdown.classList.toggle('visible');
                 if (targetDropdown.classList.contains('visible')) {
                     populateTimezoneDropdown(targetDropdown, targetSearchInput, false);
@@ -636,21 +741,26 @@
                 }
             });
             
+            // Autocomplete functionality
             sourceSearchInput.addEventListener('input', () => {
-                populateTimezoneDropdown(sourceDropdown, sourceSearchInput, true);
+                showAutocompleteSuggestions(sourceSearchInput, sourceAutocomplete, true);
             });
             
             targetSearchInput.addEventListener('input', () => {
-                populateTimezoneDropdown(targetDropdown, targetSearchInput, false);
+                showAutocompleteSuggestions(targetSearchInput, targetAutocomplete, false);
             });
             
             // Close dropdowns when clicking outside
             document.addEventListener('click', (e) => {
-                if (!sourceSearchBtn.contains(e.target) && !sourceDropdown.contains(e.target) && !sourceSearchInput.contains(e.target)) {
+                if (!sourceSearchBtn.contains(e.target) && !sourceDropdown.contains(e.target) && 
+                    !sourceSearchInput.contains(e.target) && !sourceAutocomplete.contains(e.target)) {
                     sourceDropdown.classList.remove('visible');
+                    hideAutocomplete(true);
                 }
-                if (!targetSearchBtn.contains(e.target) && !targetDropdown.contains(e.target) && !targetSearchInput.contains(e.target)) {
+                if (!targetSearchBtn.contains(e.target) && !targetDropdown.contains(e.target) && 
+                    !targetSearchInput.contains(e.target) && !targetAutocomplete.contains(e.target)) {
                     targetDropdown.classList.remove('visible');
+                    hideAutocomplete(false);
                 }
             });
             
