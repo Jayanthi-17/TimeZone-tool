@@ -4,448 +4,452 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Time Zone Converter</title>
-    <style>
-        #CalculatorContainer * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Georgia', serif;
-        }
-        
-        #CalculatorContainer {
-            background-color: #f4f2eb;
-            color: #333;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-        
-        #CalculatorContainer .header {
-            text-align: center;
-            margin-bottom: 25px;
-            width: 100%;
-        }
-        
-        #CalculatorContainer .header h2 {
-            color: #ad2a24;
-            font-size: 2.0rem;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        #CalculatorContainer .header p {
-            color: #666;
-            font-size: 1.1rem;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        #CalculatorContainer .container {
-            background-color: #f9f5e8;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 650px;
-            padding: 25px;
-            margin-bottom: 30px;
-        }
-        
-        #CalculatorContainer .card {
-            margin-bottom: 20px;
-            padding: 20px;
-            border-radius: 8px;
-            background: #fdfdfd;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-        
-        #CalculatorContainer .card-title {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-            color: #ad2a24;
-            gap: 10px;
-        }
-        
-        #CalculatorContainer .card-title svg {
-            width: 20px;
-            height: 20px;
-            fill: #ad2a24;
-        }
-        
-        #CalculatorContainer .input-group {
-            margin-bottom: 15px;
-            position: relative;
-        }
-        
-        #CalculatorContainer label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #555;
-        }
-        
-        #CalculatorContainer input, 
-        #CalculatorContainer select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        
-        #CalculatorContainer input:focus, 
-        #CalculatorContainer select:focus {
-            border-color: #ad2a24;
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(173, 42, 36, 0.2);
-        }
-        
-        /* Searchable dropdown styles */
-        #CalculatorContainer .search-container {
-            position: relative;
-        }
-        
-        #CalculatorContainer .search-input-container {
-            display: flex;
-            gap: 10px;
-        }
-        
-        #CalculatorContainer .search-input {
-            flex: 1;
-            padding-left: 35px;
-        }
-        
-        #CalculatorContainer .search-icon {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #777;
-            pointer-events: none;
-        }
-        
-        #CalculatorContainer .search-btn {
-            background-color: #ad2a24;
-            color: white;
-            border: none;
-            padding: 12px 15px;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        
-        #CalculatorContainer .search-btn:hover {
-            background-color: #93211c;
-        }
-        
-        #CalculatorContainer .dropdown-container {
-            position: relative;
-        }
-        
-        #CalculatorContainer .timezone-dropdown {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 100%;
-            max-height: 300px;
-            overflow-y: auto;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            z-index: 100;
-        }
-        
-        #CalculatorContainer .timezone-dropdown.visible {
-            display: block;
-            animation: fadeIn 0.3s ease-in-out;
-        }
-        
-        #CalculatorContainer .timezone-option {
-            padding: 10px 15px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        #CalculatorContainer .timezone-option:hover {
-            background-color: #f9f5e8;
-        }
-        
-        #CalculatorContainer .timezone-city {
-            flex: 2;
-        }
-        
-        #CalculatorContainer .timezone-offset {
-            flex: 1;
-            text-align: right;
-            color: #777;
-        }
-        
-        #CalculatorContainer .timezone-group {
-            font-weight: 600;
-            background-color: #f5f5f5;
-            padding: 8px 12px;
-            color: #ad2a24;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        
-        #CalculatorContainer .selected-timezone {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #f9f9f9;
-            border-radius: 6px;
-            border: 1px solid #eee;
-        }
-        
-        #CalculatorContainer .btn-container {
-            display: flex;
-            justify-content: center;
-            margin: 25px 0;
-        }
-        
-        #CalculatorContainer button {
-            background-color: #ad2a24;
-            color: white;
-            border: none;
-            padding: 14px 30px;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        #CalculatorContainer button:hover {
-            background-color: #93211c;
-            transform: translateY(-2px);
-        }
-        
-        #CalculatorContainer button:active {
-            transform: translateY(0);
-        }
-        
-        #CalculatorContainer .result {
-            margin-top: 20px;
-            padding: 25px;
-            background-color: #fff;
-            border-radius: 8px;
-            text-align: center;
-            min-height: 150px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            display: none;
-        }
-        
-        #CalculatorContainer .result.visible {
-            display: flex;
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        
-        #CalculatorContainer .result h3 {
-            margin-bottom: 15px;
-            color: #555;
-            font-size: 1.0rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        #CalculatorContainer .converted-time {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #ad2a24;
-            margin: 10px 0;
-        }
-        
-        #CalculatorContainer .time-details {
-            margin-top: 15px;
-            font-size: 0.95rem;
-            color: #666;
-            line-height: 1.6;
-        }
-        
-        #CalculatorContainer .footer {
-            margin-top: 20px;
-            color: #777;
-            text-align: center;
-            font-size: 0.9rem;
-            width: 100%;
-        }
-        
-        /* Autocomplete styles */
-        #CalculatorContainer .autocomplete-container {
-            position: relative;
-        }
-        
-        #CalculatorContainer .autocomplete-dropdown {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 100%;
-            max-height: 200px;
-            overflow-y: auto;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 0 0 6px 6px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            z-index: 101;
-        }
-        
-        #CalculatorContainer .autocomplete-dropdown.visible {
-            display: block;
-        }
-        
-        #CalculatorContainer .autocomplete-option {
-            padding: 10px 15px;
-            cursor: pointer;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        #CalculatorContainer .autocomplete-option:hover {
-            background-color: #f9f5e8;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @media (max-width: 600px) {
-            #CalculatorContainer .container {
-                padding: 15px;
-            }
-            
-            #CalculatorContainer .header h2 {
-                font-size: 1.8rem;
-            }
-            
-            #CalculatorContainer .converted-time {
-                font-size: 1.4rem;
-            }
-            
-            #CalculatorContainer button {
-                width: 100%;
-                justify-content: center;
-            }
-            
-            #CalculatorContainer input, 
-            #CalculatorContainer select {
-                padding: 14px 12px;
-                font-size: 16px;
-            }
-            
-            #CalculatorContainer .timezone-option {
-                flex-direction: column;
-            }
-            
-            #CalculatorContainer .timezone-offset {
-                text-align: left;
-                margin-top: 4px;
-                font-size: 0.9em;
-            }
-            
-            #CalculatorContainer .search-input-container {
-                flex-direction: column;
-            }
-            
-            #CalculatorContainer .search-btn {
-                width: 100%;
-            }
-        }
-    </style>
 </head>
 <body>
-    <div id="CalculatorContainer">
-        <div class="container">
-            <div class="header">
-                <h2>
-                    Time Zone Converter
-                </h2>
-                <p>Convert between time zones with automatic Daylight Saving Time handling</p>
-            </div>
-            <div class="card">
-                <div class="card-title">
-                    <h2>Date & Time</h2>
-                </div>
-                <div class="input-group">
-                    <label for="datetime">Select Date and Time</label>
-                    <input type="datetime-local" id="datetime">
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-title">
-                    <h2>Time Zones</h2>
-                </div>
-                <div class="input-group">
-                    <label for="source-timezone">From Timezone</label>
-                    <div class="autocomplete-container">
-                        <div class="search-input-container">
-                            <div class="search-container" style="flex: 1;">
-                                <span class="search-icon">🔍</span>
-                                <input type="text" id="source-search" class="search-input" placeholder="Type or search for a city">
-                            </div>
-                            <button class="search-btn" id="source-search-btn">Search</button>
-                        </div>
-                        <div id="source-autocomplete" class="autocomplete-dropdown"></div>
-                        <div id="source-dropdown" class="timezone-dropdown"></div>
-                        <div id="source-selected" class="selected-timezone">No timezone selected</div>
-                    </div>
-                </div>
-                
-                <div class="input-group">
-                    <label for="target-timezone">To Timezone</label>
-                    <div class="autocomplete-container">
-                        <div class="search-input-container">
-                            <div class="search-container" style="flex: 1;">
-                                <span class="search-icon">🔍</span>
-                                <input type="text" id="target-search" class="search-input" placeholder="Type or search for a city">
-                            </div>
-                            <button class="search-btn" id="target-search-btn">Search</button>
-                        </div>
-                        <div id="target-autocomplete" class="autocomplete-dropdown"></div>
-                        <div id="target-dropdown" class="timezone-dropdown"></div>
-                        <div id="target-selected" class="selected-timezone">No timezone selected</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="btn-container">
-                <button id="convert-btn">
-                    Convert Timezone
-                </button>
-            </div>
-            
-            <div class="result" id="result-section">
-                <h3>
-                    Converted Date & Time
-                </h3>
-                <div id="output" class="converted-time"></div>
-                <div id="time-details" class="time-details"></div>
-            </div>
-        </div>
-    </div>
+    <div id="CalculatorContainer"></div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Create the calculator container
+            const calculatorContainer = document.getElementById('CalculatorContainer');
+            
+            // Generate CSS styles
+            const style = document.createElement('style');
+            style.textContent = `
+                #CalculatorContainer * {
+                    box-sizing: border-box;
+                    margin: 0;
+                    padding: 0;
+                    font-family: 'Georgia', serif;
+                }
+                
+                #CalculatorContainer {
+                    background-color: #f4f2eb;
+                    color: #333;
+                    min-height: 100vh;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    padding: 20px;
+                }
+                
+                #CalculatorContainer .header {
+                    text-align: center;
+                    margin-bottom: 25px;
+                    width: 100%;
+                }
+                
+                #CalculatorContainer .header h2 {
+                    color: #ad2a24;
+                    font-size: 2.0rem;
+                    margin-bottom: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 10px;
+                }
+                
+                #CalculatorContainer .header p {
+                    color: #666;
+                    font-size: 1.1rem;
+                    max-width: 600px;
+                    margin: 0 auto;
+                }
+
+                #CalculatorContainer .container {
+                    background-color: #f9f5e8;
+                    border-radius: 10px;
+                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+                    width: 100%;
+                    max-width: 650px;
+                    padding: 25px;
+                    margin-bottom: 30px;
+                }
+                
+                #CalculatorContainer .card {
+                    margin-bottom: 20px;
+                    padding: 20px;
+                    border-radius: 8px;
+                    background: #fdfdfd;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+                }
+                
+                #CalculatorContainer .card-title {
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 15px;
+                    color: #ad2a24;
+                    gap: 10px;
+                }
+                
+                #CalculatorContainer .card-title svg {
+                    width: 20px;
+                    height: 20px;
+                    fill: #ad2a24;
+                }
+                
+                #CalculatorContainer .input-group {
+                    margin-bottom: 15px;
+                    position: relative;
+                }
+                
+                #CalculatorContainer label {
+                    display: block;
+                    margin-bottom: 8px;
+                    font-weight: 600;
+                    color: #555;
+                }
+                
+                #CalculatorContainer input, 
+                #CalculatorContainer select {
+                    width: 100%;
+                    padding: 12px 15px;
+                    border: 1px solid #ddd;
+                    border-radius: 6px;
+                    font-size: 16px;
+                    transition: border-color 0.3s;
+                }
+                
+                #CalculatorContainer input:focus, 
+                #CalculatorContainer select:focus {
+                    border-color: #ad2a24;
+                    outline: none;
+                    box-shadow: 0 0 0 2px rgba(173, 42, 36, 0.2);
+                }
+                
+                /* Searchable dropdown styles */
+                #CalculatorContainer .search-container {
+                    position: relative;
+                }
+                
+                #CalculatorContainer .search-input-container {
+                    display: flex;
+                    gap: 10px;
+                }
+                
+                #CalculatorContainer .search-input {
+                    flex: 1;
+                    padding-left: 35px;
+                }
+                
+                #CalculatorContainer .search-icon {
+                    position: absolute;
+                    left: 12px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: #777;
+                    pointer-events: none;
+                }
+                
+                #CalculatorContainer .search-btn {
+                    background-color: #ad2a24;
+                    color: white;
+                    border: none;
+                    padding: 12px 15px;
+                    border-radius: 6px;
+                    font-size: 16px;
+                    cursor: pointer;
+                    transition: background-color 0.3s;
+                }
+                
+                #CalculatorContainer .search-btn:hover {
+                    background-color: #93211c;
+                }
+                
+                #CalculatorContainer .dropdown-container {
+                    position: relative;
+                }
+                
+                #CalculatorContainer .timezone-dropdown {
+                    display: none;
+                    position: absolute;
+                    top: 100%;
+                    left: 0;
+                    width: 100%;
+                    max-height: 300px;
+                    overflow-y: auto;
+                    background: white;
+                    border: 1px solid #ddd;
+                    border-radius: 6px;
+                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+                    z-index: 100;
+                }
+                
+                #CalculatorContainer .timezone-dropdown.visible {
+                    display: block;
+                    animation: fadeIn 0.3s ease-in-out;
+                }
+                
+                #CalculatorContainer .timezone-option {
+                    padding: 10px 15px;
+                    cursor: pointer;
+                    display: flex;
+                    justify-content: space-between;
+                    border-bottom: 1px solid #f0f0f0;
+                }
+                
+                #CalculatorContainer .timezone-option:hover {
+                    background-color: #f9f5e8;
+                }
+                
+                #CalculatorContainer .timezone-city {
+                    flex: 2;
+                }
+                
+                #CalculatorContainer .timezone-offset {
+                    flex: 1;
+                    text-align: right;
+                    color: #777;
+                }
+                
+                #CalculatorContainer .timezone-group {
+                    font-weight: 600;
+                    background-color: #f5f5f5;
+                    padding: 8px 12px;
+                    color: #ad2a24;
+                    position: sticky;
+                    top: 0;
+                    z-index: 10;
+                }
+                
+                #CalculatorContainer .selected-timezone {
+                    margin-top: 10px;
+                    padding: 10px;
+                    background-color: #f9f9f9;
+                    border-radius: 6px;
+                    border: 1px solid #eee;
+                }
+                
+                #CalculatorContainer .btn-container {
+                    display: flex;
+                    justify-content: center;
+                    margin: 25px 0;
+                }
+                
+                #CalculatorContainer button {
+                    background-color: #ad2a24;
+                    color: white;
+                    border: none;
+                    padding: 14px 30px;
+                    border-radius: 6px;
+                    font-size: 16px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: background-color 0.3s, transform 0.2s;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                
+                #CalculatorContainer button:hover {
+                    background-color: #93211c;
+                    transform: translateY(-2px);
+                }
+                
+                #CalculatorContainer button:active {
+                    transform: translateY(0);
+                }
+                
+                #CalculatorContainer .result {
+                    margin-top: 20px;
+                    padding: 25px;
+                    background-color: #fff;
+                    border-radius: 8px;
+                    text-align: center;
+                    min-height: 150px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    display: none;
+                }
+                
+                #CalculatorContainer .result.visible {
+                    display: flex;
+                    animation: fadeIn 0.5s ease-in-out;
+                }
+                
+                #CalculatorContainer .result h3 {
+                    margin-bottom: 15px;
+                    color: #555;
+                    font-size: 1.0rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                }
+                
+                #CalculatorContainer .converted-time {
+                    font-size: 1.5rem;
+                    font-weight: bold;
+                    color: #ad2a24;
+                    margin: 10px 0;
+                }
+                
+                #CalculatorContainer .time-details {
+                    margin-top: 15px;
+                    font-size: 0.95rem;
+                    color: #666;
+                    line-height: 1.6;
+                }
+                
+                #CalculatorContainer .footer {
+                    margin-top: 20px;
+                    color: #777;
+                    text-align: center;
+                    font-size: 0.9rem;
+                    width: 100%;
+                }
+                
+                /* Autocomplete styles */
+                #CalculatorContainer .autocomplete-container {
+                    position: relative;
+                }
+                
+                #CalculatorContainer .autocomplete-dropdown {
+                    display: none;
+                    position: absolute;
+                    top: 100%;
+                    left: 0;
+                    width: 100%;
+                    max-height: 200px;
+                    overflow-y: auto;
+                    background: white;
+                    border: 1px solid #ddd;
+                    border-radius: 0 0 6px 6px;
+                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+                    z-index: 101;
+                }
+                
+                #CalculatorContainer .autocomplete-dropdown.visible {
+                    display: block;
+                }
+                
+                #CalculatorContainer .autocomplete-option {
+                    padding: 10px 15px;
+                    cursor: pointer;
+                    border-bottom: 1px solid #f0f0f0;
+                }
+                
+                #CalculatorContainer .autocomplete-option:hover {
+                    background-color: #f9f5e8;
+                }
+                
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                
+                @media (max-width: 600px) {
+                    #CalculatorContainer .container {
+                        padding: 15px;
+                    }
+                    
+                    #CalculatorContainer .header h2 {
+                        font-size: 1.8rem;
+                    }
+                    
+                    #CalculatorContainer .converted-time {
+                        font-size: 1.4rem;
+                    }
+                    
+                    #CalculatorContainer button {
+                        width: 100%;
+                        justify-content: center;
+                    }
+                    
+                    #CalculatorContainer input, 
+                    #CalculatorContainer select {
+                        padding: 14px 12px;
+                        font-size: 16px;
+                    }
+                    
+                    #CalculatorContainer .timezone-option {
+                        flex-direction: column;
+                    }
+                    
+                    #CalculatorContainer .timezone-offset {
+                        text-align: left;
+                        margin-top: 4px;
+                        font-size: 0.9em;
+                    }
+                    
+                    #CalculatorContainer .search-input-container {
+                        flex-direction: column;
+                    }
+                    
+                    #CalculatorContainer .search-btn {
+                        width: 100%;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Generate HTML structure
+            calculatorContainer.innerHTML = `
+                <div class="container">
+                    <div class="header">
+                        <h2>Time Zone Converter</h2>
+                        <p>Convert between time zones with automatic Daylight Saving Time handling</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">
+                            <h2>Date & Time</h2>
+                        </div>
+                        <div class="input-group">
+                            <label for="datetime">Select Date and Time</label>
+                            <input type="datetime-local" id="datetime">
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">
+                            <h2>Time Zones</h2>
+                        </div>
+                        <div class="input-group">
+                            <label for="source-timezone">From Timezone</label>
+                            <div class="autocomplete-container">
+                                <div class="search-input-container">
+                                    <div class="search-container" style="flex: 1;">
+                                        <span class="search-icon">🔍</span>
+                                        <input type="text" id="source-search" class="search-input" placeholder="Type or search for a city">
+                                    </div>
+                                    <button class="search-btn" id="source-search-btn">Search</button>
+                                </div>
+                                <div id="source-autocomplete" class="autocomplete-dropdown"></div>
+                                <div id="source-dropdown" class="timezone-dropdown"></div>
+                                <div id="source-selected" class="selected-timezone">No timezone selected</div>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="target-timezone">To Timezone</label>
+                            <div class="autocomplete-container">
+                                <div class="search-input-container">
+                                    <div class="search-container" style="flex: 1;">
+                                        <span class="search-icon">🔍</span>
+                                        <input type="text" id="target-search" class="search-input" placeholder="Type or search for a city">
+                                    </div>
+                                    <button class="search-btn" id="target-search-btn">Search</button>
+                                </div>
+                                <div id="target-autocomplete" class="autocomplete-dropdown"></div>
+                                <div id="target-dropdown" class="timezone-dropdown"></div>
+                                <div id="target-selected" class="selected-timezone">No timezone selected</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="btn-container">
+                        <button id="convert-btn">Convert Timezone</button>
+                    </div>
+                    
+                    <div class="result" id="result-section">
+                        <h3>Converted Date & Time</h3>
+                        <div id="output" class="converted-time"></div>
+                        <div id="time-details" class="time-details"></div>
+                    </div>
+                </div>
+            `;
+            
             // Get user's local timezone
             const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
             
