@@ -450,8 +450,9 @@
                 </div>
             `;
             
-            // Get user's local timezone
-            const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            // Set default timezones to New York and London
+            const defaultSourceTimezone = "America/New_York";
+            const defaultTargetTimezone = "Europe/London";
             
             // Get elements
             const sourceSearchBtn = document.getElementById('source-search-btn');
@@ -467,8 +468,8 @@
             const resultSection = document.getElementById('result-section');
             
             // Store selected timezones
-            let selectedSourceTimezone = userTimezone;
-            let selectedTargetTimezone = 'UTC';
+            let selectedSourceTimezone = defaultSourceTimezone;
+            let selectedTargetTimezone = defaultTargetTimezone;
             
             // Major cities with their timezones and display names
             const majorCities = [
@@ -708,16 +709,17 @@
             // Set initial selected timezones
             function setInitialSelected() {
                 const now = new Date();
-                const sourceCity = majorCities.find(city => city.timezone === userTimezone) || 
-                                  { name: userTimezone.split('/').pop(), country: '' };
-                const targetCity = majorCities.find(city => city.timezone === 'UTC') || 
-                                  { name: 'UTC', country: '' };
                 
-                const sourceOffset = formatUTCOffset(now, userTimezone);
-                const targetOffset = formatUTCOffset(now, 'UTC');
+                // Find New York and London in the majorCities array
+                const newYorkCity = majorCities.find(city => city.timezone === defaultSourceTimezone);
+                const londonCity = majorCities.find(city => city.timezone === defaultTargetTimezone);
                 
-                sourceSelected.textContent = `${sourceCity.name}, ${sourceCity.country} (${sourceOffset})`;
-                targetSelected.textContent = `${targetCity.name}, ${targetCity.country} (${targetOffset})`;
+                const sourceOffset = formatUTCOffset(now, defaultSourceTimezone);
+                const targetOffset = formatUTCOffset(now, defaultTargetTimezone);
+                
+                // Set the display text for the selected timezones
+                sourceSelected.textContent = `${newYorkCity.name}, ${newYorkCity.country} (${sourceOffset})`;
+                targetSelected.textContent = `${londonCity.name}, ${londonCity.country} (${targetOffset})`;
                 
                 // Clear input values, keep only placeholder
                 sourceSearchInput.value = '';
