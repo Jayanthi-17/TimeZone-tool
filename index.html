@@ -406,12 +406,12 @@
                             <h2>Time Zones</h2>
                         </div>
                         <div class="input-group">
-                            <label for="source-timezone">From Timezone</label>
+                            <label for="source-timezone">Your Timezone</label>
                             <div class="autocomplete-container">
                                 <div class="search-input-container">
                                     <div class="search-container" style="flex: 1;">
                                         <span class="search-icon">🔍</span>
-                                        <input type="text" id="source-search" class="search-input" placeholder="Type or search for a city">
+                                        <input type="text" id="source-search" class="search-input" placeholder="Type your city or timezone (e.g., New York or ET)">
                                     </div>
                                     <button class="search-btn" id="source-search-btn">Search</button>
                                 </div>
@@ -422,12 +422,12 @@
                         </div>
                         
                         <div class="input-group">
-                            <label for="target-timezone">To Timezone</label>
+                            <label for="target-timezone">Destination Timezone</label>
                             <div class="autocomplete-container">
                                 <div class="search-input-container">
                                     <div class="search-container" style="flex: 1;">
                                         <span class="search-icon">🔍</span>
-                                        <input type="text" id="target-search" class="search-input" placeholder="Type or search for a city">
+                                        <input type="text" id="target-search" class="search-input" placeholder="Type your city or timezone (e.g., London or PT)">
                                     </div>
                                     <button class="search-btn" id="target-search-btn">Search</button>
                                 </div>
@@ -471,9 +471,49 @@
             let selectedSourceTimezone = defaultSourceTimezone;
             let selectedTargetTimezone = defaultTargetTimezone;
             
+            // Timezone abbreviations mapping
+            const timezoneAbbreviations = {
+                // US Timezones
+                "ET": { name: "Eastern Time", timezone: "America/New_York", country: "United States", group: "US Timezones" },
+                "Eastern": { name: "Eastern Time", timezone: "America/New_York", country: "United States", group: "US Timezones" },
+                "CT": { name: "Central Time", timezone: "America/Chicago", country: "United States", group: "US Timezones" },
+                "Central": { name: "Central Time", timezone: "America/Chicago", country: "United States", group: "US Timezones" },
+                "MT": { name: "Mountain Time", timezone: "America/Denver", country: "United States", group: "US Timezones" },
+                "Mountain": { name: "Mountain Time", timezone: "America/Denver", country: "United States", group: "US Timezones" },
+                "PT": { name: "Pacific Time", timezone: "America/Los_Angeles", country: "United States", group: "US Timezones" },
+                "Pacific": { name: "Pacific Time", timezone: "America/Los_Angeles", country: "United States", group: "US Timezones" },
+                "AKT": { name: "Alaska Time", timezone: "America/Anchorage", country: "United States", group: "US Timezones" },
+                "Alaska": { name: "Alaska Time", timezone: "America/Anchorage", country: "United States", group: "US Timezones" },
+                "HAT": { name: "Hawaii-Aleutian Time", timezone: "Pacific/Honolulu", country: "United States", group: "US Timezones" },
+                "Hawaii-Aleutian": { name: "Hawaii-Aleutian Time", timezone: "Pacific/Honolulu", country: "United States", group: "US Timezones" },
+                
+                // Canadian Timezones
+                "AT": { name: "Atlantic Time", timezone: "America/Halifax", country: "Canada", group: "Canadian Timezones" },
+                "Atlantic": { name: "Atlantic Time", timezone: "America/Halifax", country: "Canada", group: "Canadian Timezones" },
+                "NT": { name: "Newfoundland Time", timezone: "America/St_Johns", country: "Canada", group: "Canadian Timezones" },
+                "Newfoundland": { name: "Newfoundland Time", timezone: "America/St_Johns", country: "Canada", group: "Canadian Timezones" },
+                "YT": { name: "Yukon Time", timezone: "America/Whitehorse", country: "Canada", group: "Canadian Timezones" },
+                "Yukon": { name: "Yukon Time", timezone: "America/Whitehorse", country: "Canada", group: "Canadian Timezones" }
+            };
+            
             // Major cities with their timezones and display names
             const majorCities = [
-               { name: "New York", timezone: "America/New_York", country: "United States", group: "United States" },
+                { name: "New York", timezone: "America/New_York", country: "United States", group: "United States" },
+                { name: "Los Angeles", timezone: "America/Los_Angeles", country: "United States", group: "United States" },
+                { name: "Chicago", timezone: "America/Chicago", country: "United States", group: "United States" },
+                { name: "Denver", timezone: "America/Denver", country: "United States", group: "United States" },
+                { name: "Phoenix", timezone: "America/Phoenix", country: "United States", group: "United States" },
+                { name: "Anchorage", timezone: "America/Anchorage", country: "United States", group: "United States" },
+                { name: "Honolulu", timezone: "Pacific/Honolulu", country: "United States", group: "United States" },
+                { name: "Toronto", timezone: "America/Toronto", country: "Canada", group: "Canada" },
+                { name: "Vancouver", timezone: "America/Vancouver", country: "Canada", group: "Canada" },
+                { name: "Halifax", timezone: "America/Halifax", country: "Canada", group: "Canada" },
+                { name: "St. John's", timezone: "America/St_Johns", country: "Canada", group: "Canada" },
+                { name: "Whitehorse", timezone: "America/Whitehorse", country: "Canada", group: "Canada" },
+                { name: "London", timezone: "Europe/London", country: "United Kingdom", group: "Europe" },
+                { name: "Paris", timezone: "Europe/Paris", country: "France", group: "Europe" },
+                { name: "Berlin", timezone: "Europe/Berlin", country: "Germany", group: "Europe" },
+                { name: "Tokyo", timezone: "Asia/Tokyo", country: "Japan", group: "Asia" },
                 { name: "Los Angeles", timezone: "America/Los_Angeles", country: "United States", group: "United States" },
                 { name: "Chicago", timezone: "America/Chicago", country: "United States", group: "United States" },
                 { name: "Houston", timezone: "America/Chicago", country: "United States", group: "United States" },
@@ -1206,12 +1246,21 @@
                 { name: "Saint-Jérôme", timezone: "America/Toronto", country: "Canada", group: "Canada" },
                 { name: "Saint-Joseph-de-Beauce", timezone: "America/Toronto", country: "Canada", group: "Canada" },
                 { name: "Saint-Joseph-de-Sorel", timezone: "America/Toronto", country: "Canada", group: "Canada" },
-                { name: "Anchorage", timezone: "America/Anchorage", country: "United States", group: "United States" }
+                { name: "Sydney", timezone: "Australia/Sydney", country: "Australia", group: "Australia" }
             ];
+            
+            // Combine cities and timezone abbreviations for search
+            const allSearchOptions = [...majorCities, ...Object.entries(timezoneAbbreviations).map(([abbr, data]) => ({
+                name: abbr,
+                timezone: data.timezone,
+                country: data.country,
+                group: data.group,
+                isAbbreviation: true
+            }))];
             
             // Group cities by their group property
             const groupedCities = {};
-            majorCities.forEach(city => {
+            allSearchOptions.forEach(city => {
                 if (!groupedCities[city.group]) {
                     groupedCities[city.group] = [];
                 }
@@ -1264,8 +1313,11 @@
                     
                     // Check if group has matching options
                     for (const city of groupedCities[group]) {
-                        const displayText = `${city.name}, ${city.country}`.toLowerCase();
-                        if (displayText.includes(filter)) {
+                        const displayText = city.isAbbreviation ? 
+                            `${city.name} (${timezoneAbbreviations[city.name].name})` :
+                            `${city.name}, ${city.country}`;
+                        
+                        if (displayText.toLowerCase().includes(filter)) {
                             groupHasVisibleOptions = true;
                             break;
                         }
@@ -1281,19 +1333,22 @@
                     
                     // Add cities in this group
                     groupedCities[group].forEach(city => {
-                        const displayText = `${city.name}, ${city.country}`.toLowerCase();
-                        if (!displayText.includes(filter)) return;
+                        const displayText = city.isAbbreviation ? 
+                            `${city.name} (${timezoneAbbreviations[city.name].name})` :
+                            `${city.name}, ${city.country}`;
+                        
+                        if (!displayText.toLowerCase().includes(filter)) return;
                         
                         const offset = formatUTCOffset(now, city.timezone);
                         
                         const option = document.createElement('div');
                         option.className = 'timezone-option';
                         option.dataset.timezone = city.timezone;
-                        option.dataset.display = `${city.name}, ${city.country}`;
+                        option.dataset.display = displayText;
                         
                         const citySpan = document.createElement('span');
                         citySpan.className = 'timezone-city';
-                        citySpan.textContent = `${city.name}, ${city.country}`;
+                        citySpan.textContent = displayText;
                         
                         const offsetSpan = document.createElement('span');
                         offsetSpan.className = 'timezone-offset';
@@ -1305,11 +1360,11 @@
                         option.addEventListener('click', () => {
                             if (isSource) {
                                 selectedSourceTimezone = city.timezone;
-                                sourceSelected.textContent = `${city.name}, ${city.country} (${offset})`;
+                                sourceSelected.textContent = `${displayText} (${offset})`;
                                 sourceSearchInput.value = '';
                             } else {
                                 selectedTargetTimezone = city.timezone;
-                                targetSelected.textContent = `${city.name}, ${city.country} (${offset})`;
+                                targetSelected.textContent = `${displayText} (${offset})`;
                                 targetSearchInput.value = '';
                             }
                             dropdownElement.classList.remove('visible');
@@ -1332,9 +1387,13 @@
                 autocompleteElement.innerHTML = '';
                 
                 // Filter cities based on query
-                const suggestions = majorCities.filter(city => 
-                    `${city.name}, ${city.country}`.toLowerCase().includes(query)
-                ).slice(0, 5); // Limit to 5 suggestions
+                const suggestions = allSearchOptions.filter(city => {
+                    const displayText = city.isAbbreviation ? 
+                        `${city.name} (${timezoneAbbreviations[city.name].name})` :
+                        `${city.name}, ${city.country}`;
+                    
+                    return displayText.toLowerCase().includes(query);
+                }).slice(0, 5); // Limit to 5 suggestions
                 
                 if (suggestions.length === 0) {
                     autocompleteElement.classList.remove('visible');
@@ -1342,20 +1401,24 @@
                 }
                 
                 suggestions.forEach(city => {
+                    const displayText = city.isAbbreviation ? 
+                        `${city.name} (${timezoneAbbreviations[city.name].name})` :
+                        `${city.name}, ${city.country}`;
+                    
                     const option = document.createElement('div');
                     option.className = 'autocomplete-option';
-                    option.textContent = `${city.name}, ${city.country}`;
+                    option.textContent = displayText;
                     option.addEventListener('click', () => {
                         const now = new Date();
                         const offset = formatUTCOffset(now, city.timezone);
                         
                         if (isSource) {
                             selectedSourceTimezone = city.timezone;
-                            sourceSelected.textContent = `${city.name}, ${city.country} (${offset})`;
+                            sourceSelected.textContent = `${displayText} (${offset})`;
                             sourceSearchInput.value = '';
                         } else {
                             selectedTargetTimezone = city.timezone;
-                            targetSelected.textContent = `${city.name}, ${city.country} (${offset})`;
+                            targetSelected.textContent = `${displayText} (${offset})`;
                             targetSearchInput.value = '';
                         }
                         
@@ -1497,15 +1560,33 @@
                     const targetTimeStr = targetFormatter.format(localDate);
                     
                     // Find city names for display
-                    const sourceCity = majorCities.find(city => city.timezone === selectedSourceTimezone) || 
-                                      { name: selectedSourceTimezone.split('/').pop(), country: '' };
-                    const targetCity = majorCities.find(city => city.timezone === selectedTargetTimezone) || 
-                                      { name: selectedTargetTimezone.split('/').pop(), country: '' };
+                    let sourceDisplayName = selectedSourceTimezone;
+                    let targetDisplayName = selectedTargetTimezone;
+                    
+                    // Check if it's a known timezone abbreviation
+                    for (const [abbr, data] of Object.entries(timezoneAbbreviations)) {
+                        if (data.timezone === selectedSourceTimezone) {
+                            sourceDisplayName = `${data.name} (${abbr})`;
+                        }
+                        if (data.timezone === selectedTargetTimezone) {
+                            targetDisplayName = `${data.name} (${abbr})`;
+                        }
+                    }
+                    
+                    // Check if it's a known city
+                    for (const city of majorCities) {
+                        if (city.timezone === selectedSourceTimezone) {
+                            sourceDisplayName = `${city.name}, ${city.country}`;
+                        }
+                        if (city.timezone === selectedTargetTimezone) {
+                            targetDisplayName = `${city.name}, ${city.country}`;
+                        }
+                    }
                     
                     document.getElementById('output').textContent = targetTimeStr;
                     document.getElementById('time-details').innerHTML = `
-                        <strong>Source time:</strong> ${sourceTimeStr} (${sourceOffset})<br>
-                        <strong>Target timezone:</strong> ${targetCity.name}, ${targetCity.country} (${targetOffset})
+                        <strong>Your time:</strong> ${sourceTimeStr} (${sourceOffset})<br>
+                        <strong>Destination time:</strong> ${targetDisplayName} (${targetOffset})
                     `;
                     
                     // Show the result section
