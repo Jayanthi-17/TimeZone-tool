@@ -16,7 +16,7 @@
             // Generate CSS styles
             const style = document.createElement('style');
             style.textContent = `
-                #CalculatorContainer * {
+                 #CalculatorContainer * {
                     box-sizing: border-box;
                     margin: 0;
                     padding: 0;
@@ -220,6 +220,14 @@
                     border: 1px solid #eee;
                 }
                 
+                #CalculatorContainer .timezone-note {
+                    margin-top: 8px;
+                    margin-bottom:9px;
+                    font-size: 0.9rem;
+                    color: #666;
+                    font-style: italic;
+                }
+                
                 #CalculatorContainer .btn-container {
                     display: flex;
                     justify-content: center;
@@ -405,6 +413,7 @@
                         <div class="card-title">
                             <h2>Time Zones</h2>
                         </div>
+                        <div class="timezone-note">If your town isn't listed, select a nearby major city in your time zone.</div>
                         <div class="input-group">
                             <label for="source-timezone">Your Timezone</label>
                             <div class="autocomplete-container">
